@@ -22,6 +22,7 @@ namespace Biblioteca
         public override int GetHashCode() {
             return numeroBolilla.GetHashCode();
         }
+        public override string ToString() => $"{numeroBolilla}";
     }
     
 }
