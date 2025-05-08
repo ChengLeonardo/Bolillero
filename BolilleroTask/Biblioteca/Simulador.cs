@@ -6,32 +6,36 @@ public class Simulador
         long resultado = bolillero.JugarNVeces(jugada, vecesJugar);
         return resultado;
     }
-    public double SimulacionConHilo(Bolillero bolillero, List<int> jugada, int vecesJugar, int cantidadHilosAUsar)
+    private Task<long>[] CrearSimulaciones(Bolillero bolillero, List<int> jugada, int vecesJugar, int cantidadHilosAUsar)
     {
         int repeticionPorHilo = vecesJugar / cantidadHilosAUsar;
         int cantidadBolillasbolillero = bolillero.Bolillas.Count;
         Bolillero[] bolilleros = bolillero.ClonarSiMismo(cantidadHilosAUsar);
 
-        double acum = 0;
-        
-        System.Console.WriteLine("empieza a crear bolilleros");
         Task<long>[] simulaciones = new Task<long>[cantidadHilosAUsar];
         for(int i = 0; i < cantidadHilosAUsar; i++)
         {
             Console.WriteLine($"Bolillero:  {i}");
             var clon = bolilleros[i];
-            simulaciones[i] =
-                Task.Run(() => clon.JugarNVeces(jugada, repeticionPorHilo));
+            simulaciones[i] = Task.Run(() => clon.JugarNVeces(jugada,repeticionPorHilo));
         }
-
-        System.Console.WriteLine("fin de crear");
-
-        Task.WaitAll(simulaciones);
-
+        return simulaciones;
+    }
+    public async Task<double> SimularConHilosAsync(Bolillero bolillero, List<int> jugada, int vecesJugar, int cantidadHilosAUsar)
+    {
+        Task<long>[] simulaciones = CrearSimulaciones(bolillero, jugada, vecesJugar, cantidadHilosAUsar);
+        double acum = 0;
+        await Task.WhenAll(simulaciones);
         Array.ForEach(simulaciones, s => acum+=s.Result);
-        
         return acum;
-
+    }
+    public double SimulacionConHilo(Bolillero bolillero, List<int> jugada, int vecesJugar, int cantidadHilosAUsar)
+    {
+        Task<long>[] simulaciones = CrearSimulaciones(bolillero, jugada, vecesJugar, cantidadHilosAUsar);
+        double acum = 0;
+        Task.WaitAll(simulaciones);
+        Array.ForEach(simulaciones, s => acum+=s.Result);
+        return acum;
     }
 
 
@@ -52,4 +56,5 @@ public class Simulador
 
         return resultado;
     }
+
 }

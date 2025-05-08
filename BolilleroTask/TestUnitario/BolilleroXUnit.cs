@@ -69,10 +69,26 @@ public class BolilleroXUnit
     public void SimulacionConHilos()//Expansion de dominio calentar sandwich
     {
         
-        int cantidadDeTiradas = 1_000_000_000;
+        int cantidadDeTiradas = 1_000_000;
         List<int> listaJugada = new List<int>{0, 2, 1, 4};
 
         double valorReal = simulador.SimulacionConHilo(bolilleroRandom, listaJugada, cantidadDeTiradas, 12);
+        
+        double teoria = simulador.Probabilidad(bolilleroRandom, listaJugada.Count,cantidadDeTiradas);
+        
+        double teoriapor100 = teoria*100;
+        
+        double valorRealpor100 = valorReal * 100;
+        Assert.Equal(valorRealpor100/cantidadDeTiradas, teoriapor100/cantidadDeTiradas);
+    }
+    
+    [Fact]
+    public async void SimularConHilosAsync()
+    {
+        int cantidadDeTiradas = 1_000_000;
+        List<int> listaJugada = new List<int>{0, 2, 1, 4};
+
+        double valorReal = await simulador.SimularConHilosAsync(bolilleroRandom, listaJugada, cantidadDeTiradas, 12);
         
         double teoria = simulador.Probabilidad(bolilleroRandom, listaJugada.Count,cantidadDeTiradas);
         
