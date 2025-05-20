@@ -56,5 +56,32 @@ public class Simulador
 
         return resultado;
     }
+    
+    public async Task<long> ParallelAsync(Bolillero bolillero, List<int> jugada, int vecesJugar, int cantidadHilosAUsar)
+    {
+        Bolillero[] bolilleros = bolillero.ClonarSiMismo(cantidadHilosAUsar);
+        int repeticionPorHilo = vecesJugar / cantidadHilosAUsar;
+        int cantidadSimulaciones = bolilleros.Count();
+        long[] resultados = new long[cantidadSimulaciones];
 
+        // await Parallel.ForAsync<long>(0,
+        //                             cantidadSimulaciones,
+        //                             async(i, ct) =>
+        //                             {
+        //                                 resultados[i] = bolilleros[i].JugarNVeces(jugada, repeticionPorHilo);
+        //                             }
+        // );
+        await Task.Run( () =>
+        Parallel.For(0,
+                    cantidadSimulaciones,
+                    i =>
+                        {
+                            resultados[i] = (long)bolilleros[i].JugarNVeces(jugada, repeticionPorHilo);
+                        }
+            )
+        );
+
+    
+        return resultados.Sum();
+    }
 }
